@@ -7,11 +7,11 @@ name = "bitsearch-intelligence-engine"
 version = "1.0.0"
 description = "BitSearch Intelligence Engine — AI-native real-time retrieval platform powered by Bitscrape"
 readme = "README.md"
-license = "MIT"
+license = { text = "MIT" }
 requires-python = ">=3.11"
 
 authors = [
-{ name = "Sudharsansm", email = "[sudharsansm@example.com](mailto:sudharsansm@example.com)" }
+{ name = "Sudharsansm", email = "sudharsansm@example.com" }
 ]
 
 keywords = [
@@ -27,7 +27,6 @@ keywords = [
 classifiers = [
 "Development Status :: 3 - Alpha",
 "Intended Audience :: Developers",
-"License :: OSI Approved :: MIT License",
 "Programming Language :: Python :: 3.11",
 "Programming Language :: Python :: 3.12",
 "Topic :: Internet :: WWW/HTTP :: Indexing/Search",
