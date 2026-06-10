@@ -1,0 +1,72 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "bitsearch-intelligence-engine"
+version = "1.0.0"
+description = "BitSearch Intelligence Engine — AI-native real-time retrieval platform powered by Bitscrape"
+readme = "README.md"
+license = { text = "MIT" }
+authors = [{ name = "Sudharsansm", email = "sudharsansm@example.com" }]
+keywords = ["search", "rag", "llm", "retrieval", "ai", "bitscrape", "web-search"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Internet :: WWW/HTTP :: Indexing/Search",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+requires-python = ">=3.11"
+dependencies = [
+    "bitscrape>=0.1.0",
+    "fastapi>=0.111.0",
+    "uvicorn[standard]>=0.30.0",
+    "httpx>=0.27.0",
+    "pydantic>=2.7.0",
+    "pydantic-settings>=2.3.0",
+    "rank-bm25>=0.2.2",
+    "sentence-transformers>=3.0.0",
+    "numpy>=1.26.0",
+    "redis>=5.0.0",
+    "aiofiles>=23.0.0",
+    "python-jose[cryptography]>=3.3.0",
+    "passlib[bcrypt]>=1.7.4",
+    "python-multipart>=0.0.9",
+    "structlog>=24.0.0",
+    "tenacity>=8.3.0",
+    "anyio>=4.4.0",
+    "sse-starlette>=2.1.0",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8.0", "pytest-asyncio>=0.23", "httpx>=0.27", "ruff>=0.5.0"]
+full = [
+    "elasticsearch[async]>=8.13.0",
+    "qdrant-client>=1.9.0",
+    "neo4j>=5.20.0",
+    "spacy>=3.7.0",
+    "transformers>=4.41.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/Sudharsansm/BitSearch-Intelligence-Engine"
+Repository = "https://github.com/Sudharsansm/BitSearch-Intelligence-Engine"
+Issues = "https://github.com/Sudharsansm/BitSearch-Intelligence-Engine/issues"
+
+[project.scripts]
+bie = "bie.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["bie*"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]

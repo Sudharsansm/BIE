@@ -1,0 +1,2 @@
+[console_scripts]
+bie = bie.cli:main

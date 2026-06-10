@@ -1,0 +1,237 @@
+# BitSearch Intelligence Engine (BIE)
+
+> **AI-native, real-time retrieval platform — powered by [Bitscrape](https://github.com/Sudharsansm/Bitscrape)**
+
+[![PyPI version](https://badge.fury.io/py/bitsearch-intelligence-engine.svg)](https://pypi.org/project/bitsearch-intelligence-engine/)
+[![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-blue)](https://www.python.org/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
+BIE continuously crawls and indexes the open web into a high-performance hybrid store — combining BM25 full-text search, dense vector embeddings, and a trust engine — then exposes these as developer-friendly APIs that any LLM, RAG pipeline, or autonomous agent can call to receive **fresh, fact-grounded, citation-backed responses** in under 200 ms.
+
+---
+
+## Why BIE?
+
+| Problem | BIE Solution |
+|---|---|
+| LLMs have stale knowledge | Real-time crawl via Bitscrape (freshness ≤ 60 min) |
+| LLMs hallucinate | Every answer is grounded in retrieved sources with citations |
+| Generic search APIs lack trust controls | Trust Engine scores every source (0–1) |
+| RAG pipelines are complex to build | Single `pip install` + one API call |
+
+---
+
+## Installation
+
+```bash
+pip install bitsearch-intelligence-engine
+```
+
+**With all optional backends (Elasticsearch, Qdrant, Neo4j):**
+```bash
+pip install "bitsearch-intelligence-engine[full]"
+```
+
+---
+
+## Quick Start
+
+### 1. Start the API server
+
+```bash
+bie serve --host 0.0.0.0 --port 8000
+```
+
+### 2. Crawl a URL into the index
+
+```bash
+bie crawl https://reuters.com/technology/ai-chips-2026
+```
+
+Or via the API:
+```bash
+curl -X POST http://localhost:8000/crawl/url \
+  -H "X-API-Key: your-key" \
+  -H "Content-Type: application/json" \
+  -d '{"url": "https://reuters.com/technology/ai-chips-2026"}'
+```
+
+### 3. Search
+
+```bash
+bie search "semiconductor supply chain 2026" --top-k 5
+```
+
+### 4. Agent query (RAG — grounded LLM answer)
+
+```bash
+bie search "What are TSMC's Q2 2026 results?" --agent
+```
+
+---
+
+## Python SDK
+
+```python
+import asyncio
+from bie import BIEClient
+
+async def main():
+    async with BIEClient(base_url="http://localhost:8000", api_key="my-key") as client:
+
+        # Hybrid search (BM25 + vector + trust)
+        results = await client.search("AI chip demand 2026", top_k=5)
+        for r in results.results:
+            print(f"[{r.rank}] {r.title} — trust={r.trust_score}")
+            print(f"     {r.snippet[:120]}")
+
+        # RAG: grounded answer with citations
+        answer = await client.agent_query("What happened in the semiconductor supply chain?")
+        print(answer.answer)
+        for c in answer.citations:
+            print(f"  [{c.index}] {c.title} — {c.url}")
+
+        # On-demand crawl
+        await client.crawl_url("https://nature.com/articles/new-ai-paper")
+
+asyncio.run(main())
+```
+
+**Synchronous (for notebooks / scripts):**
+```python
+from bie.client import BIEClientSync
+
+client = BIEClientSync(base_url="http://localhost:8000", api_key="my-key")
+results = client.search("latest AI research")
+print(results.results[0].title)
+```
+
+---
+
+## API Reference
+
+| Endpoint | Method | Description |
+|---|---|---|
+| `/search` | POST | Hybrid BM25 + vector search with trust reweighting |
+| `/search/stream` | GET | SSE streaming search results |
+| `/agent/query` | POST | Full RAG: retrieve → LLM → grounded answer + citations |
+| `/agent/stream` | GET | Streaming LLM token output via SSE |
+| `/crawl/url` | POST | On-demand single URL crawl and index |
+| `/crawl/batch` | POST | Batch crawl up to 50 URLs |
+| `/feedback` | POST | Thumbs-up/down to improve trust scores |
+| `/metrics` | GET | Usage and index metrics |
+| `/health` | GET | Health check (no auth) |
+
+Full OpenAPI docs at `http://localhost:8000/docs` when the server is running.
+
+---
+
+## Architecture
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│  Layer 1 — Ingestion                                            │
+│  Bitscrape Crawler → URL Queue → Document Store → Kafka-like   │
+├─────────────────────────────────────────────────────────────────┤
+│  Layer 2 — Indexing                                             │
+│  Text Index (BM25)  +  Vector Index (HNSW)  +  Trust Engine    │
+├─────────────────────────────────────────────────────────────────┤
+│  Layer 3 — Retrieval                                            │
+│  HybridRetriever → RRF Fusion → Trust Reweighting → Top-K      │
+├─────────────────────────────────────────────────────────────────┤
+│  Layer 4 — Generation                                           │
+│  ContextBuilder → LLM Gateway → Grounded Answer + Citations    │
+├─────────────────────────────────────────────────────────────────┤
+│  Layer 5 — API                                                  │
+│  FastAPI REST + SSE Streaming + Python/JS/Go SDKs              │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### Core Modules
+
+| Module | Responsibility |
+|---|---|
+| **M01 Crawler** | Bitscrape-powered crawl, extraction, chunking, dedup |
+| **M02 Indexes** | BM25 text index + dense vector index |
+| **M03 Retriever** | RRF fusion of BM25 + vector + trust weighting |
+| **M05 Trust Engine** | Per-domain reliability scoring with feedback loop |
+| **M08 Context Builder** | Token-budgeted, citation-tagged context assembly |
+| **M10 LLM Gateway** | OpenAI-compatible LLM routing with fallback |
+| **M11 Agent API** | FastAPI REST endpoints + SSE streaming |
+
+---
+
+## Configuration
+
+All settings are driven by environment variables (prefix `BIE_`) or a `.env` file:
+
+```env
+# LLM (Ollama / vLLM / any OpenAI-compatible endpoint)
+BIE_LLM_MODEL=sudharsansm/bie_qwen_2.5_3b
+BIE_LLM_BASE_URL=http://localhost:11434/v1
+
+# Embeddings
+BIE_EMBEDDING_MODEL=BAAI/bge-m3
+BIE_EMBEDDING_DEVICE=cpu   # or cuda
+
+# Crawler
+BIE_CRAWL_CONCURRENT_REQUESTS=32
+BIE_CRAWL_DOWNLOAD_DELAY=0.5
+BIE_CRAWL_FRESHNESS_HOURS=1
+
+# Retrieval
+BIE_DEFAULT_TOP_K=10
+BIE_VECTOR_WEIGHT=0.6
+BIE_BM25_WEIGHT=0.4
+```
+
+---
+
+## Running Tests
+
+```bash
+pip install -e ".[dev]"
+pytest tests/ -v
+```
+
+---
+
+## Performance Targets
+
+| Metric | MVP (Q3 2026) | v1.0 (Q1 2027) |
+|---|---|---|
+| Query latency P50 | < 300 ms | < 200 ms |
+| Throughput | 5,000 QPS | 20,000 QPS |
+| Index size | 1B documents | 10B documents |
+| Crawl freshness | ≤ 60 min | ≤ 30 min |
+| API uptime | 99.9% | 99.95% |
+
+---
+
+## Roadmap
+
+- **v0.1** — Core: BM25 + vector hybrid, trust engine, FastAPI, Bitscrape crawler ✅
+- **v0.2** — Knowledge Graph (Neo4j), Contradiction Detector
+- **v0.3** — Multi-Agent Orchestrator (LangGraph)
+- **v0.4** — Fact Verifier, SSO/Enterprise auth
+- **v1.0** — Multi-region, 10B doc index, SOC 2
+
+---
+
+## Powered by Bitscrape
+
+BIE is built on top of [Bitscrape](https://github.com/Sudharsansm/Bitscrape) — a high-performance, AI-first web crawling and extraction framework.
+
+```bash
+pip install bitscrape
+```
+
+---
+
+## License
+
+MIT — see [LICENSE](LICENSE)
+
+---
+
+*BitSearch Intelligence Engine — Fresh, grounded, fast.*
