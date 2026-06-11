@@ -91,7 +91,7 @@ def serve(host: str | None, port: int | None, reload: bool) -> None:
     try:
         import uvicorn
     except ImportError:
-        click.echo("uvicorn is required: pip install bie[server]", err=True)
+        click.echo("uvicorn is required: pip install 'bits-bie[server]'", err=True)
         sys.exit(1)
 
     settings = BIESettings()
@@ -122,7 +122,7 @@ def mcp() -> None:
     try:
         from bie.mcp.server import run_mcp_server
     except ImportError:
-        click.echo("MCP support requires: pip install bie[mcp]", err=True)
+        click.echo("MCP support requires: pip install 'bits-bie[mcp]'", err=True)
         sys.exit(1)
 
     run_mcp_server()

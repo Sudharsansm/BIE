@@ -8,14 +8,14 @@
 **The fastest, simplest way to give any LLM, RAG pipeline, or AI agent
 real-time, citation-backed web search and extraction.**
 
-BIE crawls the live web (powered by [**BitS**](https://pypi.org/project/bitscrape/),
+BIE crawls the live web (powered by [**Bitscrape**](https://pypi.org/project/bitscrape/),
 our high-performance async crawler), builds a hybrid **BM25 + semantic
 vector** index in memory, and returns ranked, source-attributed results —
 all from a single Python call, REST endpoint, CLI command, or
 [MCP](https://modelcontextprotocol.io) tool.
 
 ```python
-import bits-bie
+import bie
 
 results = bie.search(
     "latest semiconductor export rules 2026",
@@ -48,6 +48,10 @@ for r in results:
 pip install bits-bie
 ```
 
+> Note: the PyPI **distribution** is named `bits-bie` (since `bie`
+> was too similar to an existing PyPI project), but you still
+> `import bie` and run the `bie` CLI command — same API as shown below.
+
 Optional extras:
 
 ```bash
@@ -68,7 +72,7 @@ pip install "bits-bie[all]"         # everything
 ### 1. One-shot search (Python)
 
 ```python
-import bits-bie
+import bie
 
 results = bie.search("AI regulation news", urls=["https://example.com/news"], top_k=5)
 for r in results:
@@ -78,7 +82,7 @@ for r in results:
 ### 2. Build a reusable index
 
 ```python
-from bits-bie import BIE
+from bie import BIE
 
 engine = BIE()
 engine.crawl(["https://example.com/blog", "https://another-site.com"])
@@ -161,7 +165,7 @@ All settings can be set via environment variables prefixed with `BIE_`,
 or passed directly:
 
 ```python
-from bits-bie import BIE, BIESettings
+from bie import BIE, BIESettings
 
 engine = BIE(BIESettings(
     max_pages=20,
@@ -220,7 +224,7 @@ for Elasticsearch/Milvus-backed implementations behind the same
 ## Built on Bitscrape
 
 BIE's crawling and extraction layer is powered by
-[**BitS**](https://github.com/Sudharsansm/Bitscrape)
+[**Bitscrape**](https://github.com/Sudharsansm/Bitscrape)
 (`pip install bitscrape`), our async, robots.txt-aware web scraping
 framework — giving BIE high-performance, polite, production-grade crawling
 out of the box.

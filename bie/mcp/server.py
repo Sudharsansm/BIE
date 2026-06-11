@@ -14,7 +14,7 @@ Run with::
 
     bie mcp
 
-Requires the ``mcp`` package: ``pip install bie[mcp]``
+Requires the ``mcp`` package: ``pip install 'bits-bie[mcp]'``
 """
 
 from __future__ import annotations
@@ -44,7 +44,7 @@ def run_mcp_server() -> None:
     except ImportError as exc:  # pragma: no cover
         raise ImportError(
             "The 'mcp' package is required for MCP support. "
-            "Install with: pip install bie[mcp]"
+            "Install with: pip install 'bits-bie[mcp]'"
         ) from exc
 
     mcp = FastMCP("bie")

@@ -4,7 +4,7 @@ fused with Reciprocal Rank Fusion (RRF).
 
 This is the OSS, single-process implementation of the BIE PRD's
 Module 2 (Indexes) + Module 3 (Hybrid Retriever). It's designed to be
-fast to start (`pip install bie`, no external services required) while
+fast to start (`pip install bits-bie`, no external services required) while
 being a drop-in interface that a future Elasticsearch/Milvus-backed
 implementation could replace.
 """
@@ -97,7 +97,7 @@ class VectorIndex:
         except Exception as exc:  # pragma: no cover - optional dependency
             logger.info(
                 "Vector search disabled (sentence-transformers not available: %s). "
-                "Falling back to BM25-only. Install with: pip install bie[embeddings]",
+                "Falling back to BM25-only. Install with: pip install 'bits-bie[embeddings]'",
                 exc,
             )
             return False
