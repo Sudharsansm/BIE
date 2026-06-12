@@ -1,9 +1,9 @@
 # BIE — BitSearch Intelligence Engine
 
-[![PyPI](https://img.shields.io/pypi/v/bie.svg)](https://pypi.org/project/bie/)
-[![Python](https://img.shields.io/pypi/pyversions/bie.svg)](https://pypi.org/project/bie/)
+[![PyPI](https://img.shields.io/pypi/v/bits-bie.svg)](https://pypi.org/project/bits-bie/)
+[![Python](https://img.shields.io/pypi/pyversions/bits-bie.svg)](https://pypi.org/project/bits-bie/)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
-[![Built on Bitscrape](https://img.shields.io/badge/built%20on-Bitscrape-orange.svg)](https://github.com/Sudharsansm/Bitscrape)
+[![Built on BitS](https://img.shields.io/badge/built%20on-Bitscrape-orange.svg)](https://github.com/Sudharsansm/Bitscrape)
 
 **The fastest, simplest way to give any LLM, RAG pipeline, or AI agent
 real-time, citation-backed web search and extraction.**
