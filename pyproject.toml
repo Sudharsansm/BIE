@@ -5,7 +5,7 @@ build-backend = "hatchling.build"
 [project]
 name = "bits-bie"
 version = "0.5.0"
-description = "BitSearch Intelligence Engine — real-time, citation-backed web search & extraction for AI apps. Built on Bitscrape."
+description = "*BitS* BitSearch Intelligence Engine — real-time, citation-backed web search & extraction for AI apps. Built on BitS."
 readme = "README.md"
 license = "MIT"
 requires-python = ">=3.11"

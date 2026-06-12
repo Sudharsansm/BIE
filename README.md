@@ -5,11 +5,13 @@
 [![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![Built on BitS](https://img.shields.io/badge/built%20on-Bitscrape-orange.svg)](https://github.com/Sudharsansm/Bitscrape)
 
-**The fastest, simplest way to give any LLM, RAG pipeline, or AI agent
-real-time, citation-backed web search and extraction.**
+**A real-time web search engine for AI applications — no API keys, no
+subscriptions, no third-party search services.**
 
-BIE crawls the live web (powered by [**BitS**](https://pypi.org/project/bitscrape/),
-our high-performance async crawler), builds a hybrid **BM25 + semantic
+BIE discovers relevant pages on the live internet using free, public
+search endpoints, crawls them (powered by
+[**BitS**](https://pypi.org/project/bitscrape/), our
+high-performance async crawler), builds a hybrid **BM25 + semantic
 vector** index in memory, and returns ranked, source-attributed results —
 all from a single Python call, REST endpoint, CLI command, or
 [MCP](https://modelcontextprotocol.io) tool.
@@ -17,19 +19,21 @@ all from a single Python call, REST endpoint, CLI command, or
 ```python
 import bie
 
-results = bie.search(
-    "latest semiconductor export rules 2026",
-    urls=["https://www.reuters.com/technology/"],
-)
+# Search the live internet — no URLs, no API key, no subscription
+results = bie.websearch("latest semiconductor export rules 2026")
 
 for r in results:
     print(r.title, "—", r.url, f"(score={r.score:.3f})")
+    print(r.snippet)
 ```
 
 ---
 
 ## Why BIE?
 
+- 🌐 **Free, real-time web search** — no API keys, no subscriptions, no
+  third-party search providers. Discovery uses public, no-key search
+  endpoints with automatic fallback.
 - 🚀 **Zero infra** — no Elasticsearch, no Milvus, no Kafka. Pure Python,
   in-memory hybrid index. Scale up later if you need to.
 - 🧠 **Hybrid retrieval out of the box** — BM25 lexical search fused with
@@ -69,7 +73,31 @@ pip install "bits-bie[all]"         # everything
 
 ## Usage
 
-### 1. One-shot search (Python)
+### 0. Search the live internet — no URLs, no API key, no subscription
+
+```python
+import bie
+
+results = bie.websearch("who won the latest F1 race")
+for r in results:
+    print(r.title, "—", r.url)
+    print(r.snippet)
+```
+
+This is BIE's primary, "type a question, get a real-time answer from the
+internet" mode. It:
+
+1. Discovers candidate URLs for your query via free, public, no-key
+   search endpoints (DuckDuckGo, with an automatic Bing fallback for
+   reliability)
+2. Crawls them with Bitscrape
+3. Extracts and chunks the page text, then ranks it against your query
+   with BIE's hybrid BM25 + vector index
+
+No accounts, no API keys, no rate-limited paid tiers — everything runs
+locally using publicly accessible search and the Bitscrape crawler.
+
+### 1. One-shot search of specific sites (Python)
 
 ```python
 import bie
@@ -105,7 +133,10 @@ engine.add_text(
 ### 4. CLI
 
 ```bash
-# Crawl + search in one command
+# Search the whole internet — no URLs needed
+bie search-live "who won the latest F1 race"
+
+# Crawl + search specific sites in one command
 bie search "global markets today" --url https://www.bbc.com/news --top-k 5
 
 # Just crawl & dump extracted pages
@@ -132,6 +163,10 @@ curl -X POST http://localhost:8000/crawl/url \
 curl -X POST http://localhost:8000/search \
   -H "Content-Type: application/json" \
   -d '{"query": "latest news", "top_k": 5}'
+
+curl -X POST http://localhost:8000/search/live \
+  -H "Content-Type: application/json" \
+  -d '{"query": "who won the latest F1 race", "top_k": 5}'
 ```
 
 See the full endpoint contract in [`docs/API.md`](docs/API.md).
@@ -151,9 +186,10 @@ Add BIE as a tool in your MCP client (e.g. `claude_desktop_config.json`):
 }
 ```
 
-This exposes three tools to your AI assistant:
+This exposes four tools to your AI assistant:
 
-- `bie_search(query, urls, top_k, max_pages)` — crawl + search in one call
+- `bie_web_search(query, top_k, deep)` — search the entire web, no URLs needed (DuckDuckGo discovery + Bitscrape crawl, no API key)
+- `bie_search(query, urls, top_k, max_pages)` — crawl + search specific URLs in one call
 - `bie_crawl(urls, max_pages)` — crawl & index into a session-persistent store
 - `bie_index_search(query, top_k)` — search the session index
 
@@ -221,7 +257,7 @@ for Elasticsearch/Milvus-backed implementations behind the same
 
 ---
 
-## Built on Bitscrape
+## Built on BitS
 
 BIE's crawling and extraction layer is powered by
 [**BitS**](https://github.com/Sudharsansm/Bitscrape)
