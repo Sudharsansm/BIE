@@ -55,3 +55,6 @@ class BIESettings(BaseSettings):
         case_sensitive=False,
         extra="ignore",
     )
+
+
+settings = BIESettings()
